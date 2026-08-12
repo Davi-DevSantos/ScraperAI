@@ -1,0 +1,1 @@
+"""Núcleo da aplicação: configurações e utilitários transversais."""
