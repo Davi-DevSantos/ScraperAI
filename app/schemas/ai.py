@@ -1,9 +1,8 @@
-"""Schemas de entrada/saída do processamento com IA."""
-from pydantic importa BaseModel, Field
-# TODO: AIAnalyzeRequest (conteúdo, instrução/query)
+from pydantic import BaseModel, Field
+
 class AIAnalyzeRequest(BaseModel):
-    prompt: str
-    html: str
-# TODO: AIAnalyzeResponse (resposta do modelo, tokens usados, custo)
+    prompt: str = Field(description='The prompt user')
+    html: str = Field(description='The html of site')
+
 class AIAnalyzeResponse(BaseModel):
     resposta: str
