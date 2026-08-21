@@ -1,8 +1,9 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, HTTPUrl
 
 class ScrapeRequest(BaseModel):
-    url: str
-    
+    url: HTTPUrl = Field(..., description="The URL of the website to scrape")
+    prompt: str = Field(..., description="The prompt to guide the scraping process")
+
 class ScrapeResult(BaseModel):
-    texto: str 
+    data: str = Field(..., description="The extracted data from the website")
   

@@ -1,3 +1,9 @@
-"""Endpoint(s) de saúde da aplicação."""
+from fastapi import APIRouter
 
-# TODO: GET /health -> {"status": "ok", "version": ...}
+
+router = APIRouter()
+
+
+@router.get("/health")
+async def health_check():
+    return {"status": "ok", "version": "1.0.0"}

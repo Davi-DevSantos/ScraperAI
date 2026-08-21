@@ -1,7 +1,7 @@
 from openai import OpenAI
 from utils.format_data import format_prompt
-from utils.html_extractor import get_html
-from schemas.ai import AIAnalyzeRequest
+from utils.html_extractor import format_html, get_html
+
 
 client = OpenAI()
 
@@ -10,9 +10,10 @@ class IAScrapeServices:
         self.url = url
         self.prompt = prompt
 
-    def get_data(self):
+    def get_data(self) -> str | None:
         page_html = get_html(self.url)
-        prompt = format_prompt(html=page_html, prompt=self.prompt)
+        clean_html = format_html(page_html)
+        prompt = format_prompt(html=str(clean_html), prompt=self.prompt)
 
         chat = client.chat.completions.create(
             model='gpt-4o-mini',

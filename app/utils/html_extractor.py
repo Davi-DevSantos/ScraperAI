@@ -3,10 +3,11 @@ from bs4 import BeautifulSoup
 
 
 def format_html(html: str):
-    soup = BeautifulSoup(html, 'html.parse')
+    soup = BeautifulSoup(html, 'html.parser')
     
-    for tags in soup['script', 'style', 'noscript', 'iframe', 'svg', 'canvas']
-        tag.decompose()
+    for tags in soup.find_all(['script', 'style', 'noscript', 'iframe', 'svg', 'canvas']):
+        tags.decompose()
+    return soup
 
 def get_html(url: str):
     with sync_playwright() as p:
