@@ -10,13 +10,13 @@ class IAScrapeServices:
         self.url = url
         self.prompt = prompt
 
-    def get_data(self, prompt):
+    def get_data(self):
         page_html = get_html(self.url)
         prompt = format_prompt(html=page_html, prompt=self.prompt)
 
         chat = client.chat.completions.create(
             model='gpt-4o-mini',
-            messages=[{'role': 'system', 'content': 'Você extrai dados de sites que o usuario pede'},
+            messages=[{'role': 'system', 'content': 'Você apenas extrai dados de sites e retorna os dados diretamente em formato json'},
                       {'role': 'user', 'content': prompt}],
         max_tokens=500,
         temperature=0.1,

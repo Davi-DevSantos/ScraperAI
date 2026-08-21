@@ -1,4 +1,12 @@
 from playwright.sync_api import sync_playwright
+from bs4 import BeautifulSoup
+
+
+def format_html(html: str):
+    soup = BeautifulSoup(html, 'html.parse')
+    
+    for tags in soup['script', 'style', 'noscript', 'iframe', 'svg', 'canvas']
+        tag.decompose()
 
 def get_html(url: str):
     with sync_playwright() as p:
