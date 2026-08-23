@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, HttpUrl, SecretStr, model_validator
 
 ProviderName = Literal["openai", "anthropic", "gemini"]
 
-# Modelos permitidos por provedor (sem texto livre, conforme requisito)
+
 ALLOWED_MODELS: dict[str, list[str]] = {
     "openai": ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1", "o1-mini", "o3-mini"],
     "anthropic": [
@@ -21,7 +21,6 @@ ALLOWED_MODELS: dict[str, list[str]] = {
         "gemini-1.5-flash-8b",
     ],
 }
-
 
 class ScrapeRequest(BaseModel):
     url: HttpUrl = Field(..., description="URL do site a extrair")
@@ -42,7 +41,7 @@ class ScrapeRequest(BaseModel):
     def _validate_model_for_provider(self):
         if self.model is None:
             return self
-        # provider None -> valida contra qualquer provedor (frontend sempre envia provider, mas API permite omitir)
+
         allowed = []
         if self.provider:
             allowed = ALLOWED_MODELS.get(self.provider, [])
@@ -53,7 +52,6 @@ class ScrapeRequest(BaseModel):
             if self.model not in all_models:
                 raise ValueError(f"Modelo '{self.model}' inválido. Opções: {', '.join(all_models)}")
         return self
-
 
 class ScrapeResult(BaseModel):
     data: str = Field(..., description="Dados extraídos em JSON string")

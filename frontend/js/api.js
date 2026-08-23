@@ -9,16 +9,7 @@ const api = {
     const res = await fetch(`${API_BASE}/api/providers`);
     return res.json();
   },
-  /**
-   * @param {Object} opts
-   * @param {string} opts.url
-   * @param {string} opts.prompt
-   * @param {string} [opts.provider] - openai | anthropic | gemini
-   * @param {string} [opts.model]
-   * @param {string} [opts.apiKey] - chave do usuário (tem prioridade sobre .env)
-   * @param {number} [opts.maxTokens]
-   * @param {number} [opts.temperature]
-   */
+  
   async scrape({ url, prompt, provider, model, apiKey, maxTokens, temperature }) {
     const headers = { "Content-Type": "application/json" };
     if (apiKey) headers["X-AI-API-Key"] = apiKey;

@@ -1,4 +1,3 @@
-"""Testes do service IAScrapeServices (app/services/scraper.py) — multi-provedor."""
 
 from unittest.mock import MagicMock, patch
 
@@ -7,11 +6,9 @@ import pytest
 from app.services.scraper import IAScrapeServices, _build_client, client
 
 
-# ---------------------------------------------------------------------------
-# helpers
-# ---------------------------------------------------------------------------
+
+
 def _mock_openai_client(content: str | None = '{"nome": "teste"}'):
-    """Cria mock de OpenAI client com chat.completions.create retornando content."""
     mock_client = MagicMock()
     mock_message = MagicMock()
     mock_message.content = content
@@ -22,7 +19,6 @@ def _mock_openai_client(content: str | None = '{"nome": "teste"}'):
     mock_client.chat.completions.create.return_value = mock_chat
     return mock_client
 
-
 def _mock_provider(content: str | None = '{"ok": true}', name: str = "openai"):
     mock = MagicMock()
     mock.name = name
@@ -30,15 +26,14 @@ def _mock_provider(content: str | None = '{"ok": true}', name: str = "openai"):
     return mock
 
 
-# ---------------------------------------------------------------------------
-# __init__
-# ---------------------------------------------------------------------------
+
+
 class TestInit:
     def test_init_armazena_url_e_prompt(self):
         svc = IAScrapeServices(url="https://exemplo.com", prompt="extraia preços")
         assert svc.url == "https://exemplo.com"
         assert svc.prompt == "extraia preços"
-        assert svc._client is None  # app/services/scraper.py compat
+        assert svc._client is None
 
     def test_init_com_client_injetado(self):
         mock_client = MagicMock()
@@ -62,9 +57,8 @@ class TestInit:
         assert IAScrapeServices.SYSTEM_PROMPT == "Você apenas extrai dados de sites e retorna os dados diretamente em formato json"
 
 
-# ---------------------------------------------------------------------------
-# _build_client / client global
-# ---------------------------------------------------------------------------
+
+
 class TestBuildClient:
     def test_build_client_usa_api_key_do_setting(self):
         with patch("app.services.scraper.setting") as mock_setting:
@@ -96,10 +90,10 @@ class TestBuildClient:
     def test_get_client_retorna_adapter_quando_client_injetado(self):
         mock_injected = MagicMock()
         svc = IAScrapeServices(url="https://ex.com", prompt="p", client=mock_injected)
-        # legado: _get_client retorna adapter que encapsula mock_injected
+
         adapter = svc._get_client()
         assert hasattr(adapter, "_c")
-        assert adapter._c is mock_injected  # type: ignore[attr-defined]
+        assert adapter._c is mock_injected
 
     def test_get_client_retorna_provider_injetado(self):
         mock_provider = _mock_provider()
@@ -107,16 +101,15 @@ class TestBuildClient:
         assert svc._get_client() is mock_provider
 
     def test_provider_factory_fallback_dummy_quando_sem_chave(self):
-        # Sem chave no env, factory usa dummy sk-test e não levanta
+
         svc = IAScrapeServices(url="https://ex.com", prompt="p")
-        # deve ter criado provider sem erro (dummy key)
+
         assert svc._provider is not None
         assert hasattr(svc._provider, "complete")
 
 
-# ---------------------------------------------------------------------------
-# get_data - caminho feliz
-# ---------------------------------------------------------------------------
+
+
 class TestGetDataHappyPath:
     @patch("app.services.scraper.format_prompt")
     @patch("app.services.scraper.format_html")
@@ -232,16 +225,15 @@ class TestGetDataHappyPath:
             mock_setting.AI_PROVIDER = "anthropic"
             result = svc.get_data()
             mock_provider.complete.assert_called_once()
-            # verifica chamada com model do setting
+
             kwargs = mock_provider.complete.call_args[1]
             assert kwargs["model"] == "claude-3-5-sonnet-latest"
             assert kwargs["max_tokens"] == 1024
             assert result == '{"ok": true}'
 
 
-# ---------------------------------------------------------------------------
-# get_data - retornos e erros
-# ---------------------------------------------------------------------------
+
+
 class TestGetDataEdgeCases:
     @patch("app.services.scraper.format_prompt")
     @patch("app.services.scraper.format_html")
@@ -333,9 +325,8 @@ class TestGetDataEdgeCases:
         assert mock_format_prompt.call_args_list[1][1]["prompt"] == "prompt2"
 
 
-# ---------------------------------------------------------------------------
-# Integração leve: utils são chamados corretamente?
-# ---------------------------------------------------------------------------
+
+
 class TestIntegracaoUtils:
     def test_format_prompt_alone(self):
         from app.utils.format_data import format_prompt
@@ -370,9 +361,8 @@ class TestIntegracaoUtils:
         assert "Caneta" in str(soup)
 
 
-# ---------------------------------------------------------------------------
-# Multi-provedor
-# ---------------------------------------------------------------------------
+
+
 class TestMultiProvider:
     @patch("app.services.scraper.format_prompt")
     @patch("app.services.scraper.format_html")
@@ -393,9 +383,9 @@ class TestMultiProvider:
         mock_get_html.return_value = "<html></html>"
         mock_format_html.return_value = MagicMock(__str__=lambda s: "clean")
         mock_format_prompt.return_value = "p"
-        # Gemini costuma responder com cercas markdown
+
         mock_provider = _mock_provider(content='```json\n{"y":2}\n```', name="gemini")
-        # simula que provider já fez strip; aqui testamos utils
+
         from app.utils.json_parser import strip_markdown_fences
 
         assert strip_markdown_fences('```json\n{"y":2}\n```') == '{"y":2}'

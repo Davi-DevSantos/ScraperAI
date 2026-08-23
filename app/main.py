@@ -1,5 +1,3 @@
-"""App principal (FastAPI)."""
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -15,7 +13,6 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=setting.CORS_ORIGINS,
@@ -24,10 +21,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routers
 app.include_router(health.router)
 app.include_router(ai.router)
-
 
 @app.get("/", include_in_schema=False)
 async def root():
@@ -41,7 +36,6 @@ async def root():
             "scrape": "POST /api/scrape",
         }
     )
-
 
 @app.get("/health", include_in_schema=False)
 async def health_alias():

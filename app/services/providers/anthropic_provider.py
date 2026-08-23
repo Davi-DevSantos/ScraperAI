@@ -2,7 +2,6 @@ from app.core.config import setting
 from app.core.exceptions import InvalidError, ServiceError
 from app.utils.json_parser import strip_markdown_fences
 
-
 class AnthropicProvider:
     name = "anthropic"
 
@@ -13,7 +12,7 @@ class AnthropicProvider:
                 "ANTHROPIC_API_KEY não configurada. Defina no .env ou envie `api_key` na requisição."
             )
         try:
-            import anthropic  # type: ignore
+            import anthropic
 
             self._client = anthropic.Anthropic(api_key=key)
         except ImportError as e:
@@ -32,7 +31,7 @@ class AnthropicProvider:
         if not model:
             raise InvalidError("model não pode ser vazio para Anthropic")
         try:
-            # Anthropic exige system separado
+
             resp = self._client.messages.create(
                 model=model,
                 system=system,
@@ -40,7 +39,7 @@ class AnthropicProvider:
                 max_tokens=max_tokens,
                 temperature=temperature,
             )
-            # resp.content é lista de blocks; pegar text do primeiro
+
             if not resp.content:
                 return None
             block = resp.content[0]

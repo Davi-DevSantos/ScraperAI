@@ -2,8 +2,7 @@ from openai import OpenAI
 
 from app.core.config import setting
 from app.core.exceptions import InvalidError, ServiceError
-from app.services.providers.prompts import SYSTEM_PROMPT  # noqa: F401 (exposto para import)
-
+from app.services.providers.prompts import SYSTEM_PROMPT
 
 class OpenAIProvider:
     name = "openai"
@@ -14,7 +13,7 @@ class OpenAIProvider:
             raise ServiceError(
                 "OPENAI_API_KEY não configurada. Defina no .env ou envie `api_key` na requisição."
             )
-        # SecretStr já foi unwrap em setting.get_api_key_for
+
         self._client = OpenAI(api_key=key)
 
     def complete(
@@ -25,7 +24,7 @@ class OpenAIProvider:
         max_tokens: int,
         temperature: float,
     ) -> str | None:
-        # Validação leve de modelo (permite qualquer string, mas garante não vazio)
+
         if not model:
             raise InvalidError("model não pode ser vazio para OpenAI")
         try:
@@ -40,8 +39,8 @@ class OpenAIProvider:
             )
             return chat.choices[0].message.content
         except Exception as e:
-            # Re-raise como ServiceError preservando mensagem (sem expor chave)
-            # Mensagens de auth/rate-limit viram ServiceError genérico; deps mapeia para HTTP.
+
+
             msg = str(e)
             if "api_key" in msg.lower() or "unauthorized" in msg.lower() or "401" in msg:
                 raise ServiceError(f"OpenAI auth falhou: {msg}") from e

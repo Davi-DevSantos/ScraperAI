@@ -1,1 +1,1 @@
-"""Pacote raiz da aplicação."""
+

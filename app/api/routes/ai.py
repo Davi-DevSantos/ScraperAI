@@ -15,21 +15,18 @@ from app.services.scraper import IAScrapeServices
 
 router = APIRouter(prefix="/api", tags=["ai"])
 
-
 @router.post("/scrape", response_model=ScrapeResult)
 async def scrape_website(
     request: ScrapeRequest,
     x_ai_api_key: Annotated[str | None, Header(alias="X-AI-API-Key")] = None,
 ):
-    # prioridade de chave: body api_key > header X-AI-API-Key > env
     body_key = request.api_key.get_secret_value() if request.api_key else None
     effective_key = body_key or x_ai_api_key
 
     provider_name = request.provider or setting.AI_PROVIDER
     if provider_name.lower() == "google":
-        provider_name = "gemini"  # type: ignore[assignment]
+        provider_name = "gemini"
 
-    # Resolve modelo efetivo (provider-aware, sem mutar global)
     from app.services.providers.factory import normalize_provider
 
     _norm_req = normalize_provider(str(provider_name))
@@ -47,7 +44,6 @@ async def scrape_website(
     else:
         effective_model = setting.AI_MODEL or get_default_model(_norm_req)
 
-    # Tokens/temperatura: request > setting
     effective_max_tokens = request.max_tokens if request.max_tokens is not None else setting.AI_MAX_TOKENS
     effective_temperature = request.temperature if request.temperature is not None else setting.AI_TEMPERATURE
 
@@ -81,7 +77,6 @@ async def scrape_website(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
 
-
 @router.get("/providers")
 async def list_providers():
     return {
@@ -89,6 +84,5 @@ async def list_providers():
         "default": setting.AI_PROVIDER,
         "default_models": DEFAULT_MODELS,
         "available_models": AVAILABLE_MODELS,
-        # compat com frontend antigo
         "models": DEFAULT_MODELS,
     }

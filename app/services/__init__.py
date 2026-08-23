@@ -1,1 +1,1 @@
-"""Camada de serviços: lógica de negócio (scraping e IA)."""
+

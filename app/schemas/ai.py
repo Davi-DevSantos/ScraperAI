@@ -1,4 +1,3 @@
-"""Schemas de IA — re-exporta ProviderName e lista de provedores."""
 
 from app.schemas.scrape import ProviderName, ScrapeRequest, ScrapeResult
 

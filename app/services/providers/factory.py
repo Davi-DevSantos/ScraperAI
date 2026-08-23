@@ -9,7 +9,7 @@ _PROVIDER_MAP: dict[str, type[AIProvider]] = {
     "openai": OpenAIProvider,
     "anthropic": AnthropicProvider,
     "gemini": GeminiProvider,
-    "google": GeminiProvider,  # alias
+    "google": GeminiProvider,
 }
 
 DEFAULT_MODELS: dict[str, str] = {
@@ -42,7 +42,6 @@ AVAILABLE_MODELS: dict[str, list[str]] = {
     ],
 }
 
-
 def normalize_provider(name: str | None) -> str:
     raw = (name or setting.AI_PROVIDER or "openai").strip().lower()
     if raw == "google":
@@ -51,12 +50,7 @@ def normalize_provider(name: str | None) -> str:
         return "openai"
     return raw
 
-
 def get_provider(name: str | None = None, api_key: str | None = None) -> AIProvider:
-    """Factory: retorna instância do provedor correto.
-
-    Prioridade de chave: `api_key` (do request/header) > `setting` específico > `AI_API_KEY` genérica.
-    """
     provider_name = normalize_provider(name)
     cls = _PROVIDER_MAP.get(provider_name)
     if cls is None:
@@ -69,11 +63,9 @@ def get_provider(name: str | None = None, api_key: str | None = None) -> AIProvi
 
     return cls(api_key=effective_key)
 
-
 def get_default_model(provider_name: str | None = None) -> str:
     pn = normalize_provider(provider_name)
     return DEFAULT_MODELS.get(pn, setting.AI_MODEL or "gpt-4o-mini")
-
 
 def get_available_models(provider_name: str | None = None) -> list[str] | dict[str, list[str]]:
     if provider_name:

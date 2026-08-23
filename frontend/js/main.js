@@ -2,7 +2,6 @@ console.log("AIScraper frontend carregado");
 
 const $ = (id) => document.getElementById(id);
 
-// Fallback local (espelha factory.AVAILABLE_MODELS) para render imediato antes do fetch
 const FALLBACK_MODELS = {
   openai: ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1", "o1-mini", "o3-mini"],
   anthropic: ["claude-3-5-sonnet-latest", "claude-3-5-haiku-latest", "claude-3-opus-latest", "claude-3-haiku-20240307"],
@@ -35,7 +34,6 @@ async function loadProviders() {
     if (el) el.textContent = JSON.stringify(data, null, 2);
     if (data.available_models) availableModels = data.available_models;
     if (data.default_models) defaultModels = data.default_models;
-    // repopula após fetch
     const prov = $("provider")?.value || "openai";
     populateModelSelect(prov);
   } catch (e) {
@@ -61,7 +59,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnHealth = $("btn-health");
   if (btnHealth) btnHealth.addEventListener("click", checkHealth);
   if (providerEl) {
-    // inicial
     populateModelSelect(providerEl.value || "openai");
     providerEl.addEventListener("change", () => populateModelSelect(providerEl.value));
   }

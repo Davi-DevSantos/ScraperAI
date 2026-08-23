@@ -2,7 +2,6 @@ from app.core.config import setting
 from app.core.exceptions import InvalidError, ServiceError
 from app.utils.json_parser import strip_markdown_fences
 
-
 class GeminiProvider:
     name = "gemini"
 
@@ -13,7 +12,7 @@ class GeminiProvider:
                 "GOOGLE_API_KEY (ou GEMINI_API_KEY) não configurada. Defina no .env ou envie `api_key` na requisição."
             )
         try:
-            import google.generativeai as genai  # type: ignore
+            import google.generativeai as genai
 
             genai.configure(api_key=key)
             self._genai = genai
@@ -34,15 +33,15 @@ class GeminiProvider:
         if not model:
             raise InvalidError("model não pode ser vazio para Gemini")
         try:
-            # Gemini: system_instruction separado quando disponível
-            # Para compat. com versões antigas, concatena se necessário
+
+
             try:
                 mdl = self._genai.GenerativeModel(
                     model_name=model,
                     system_instruction=system,
                 )
             except TypeError:
-                # fallback para versões que não suportam system_instruction
+
                 mdl = self._genai.GenerativeModel(model_name=model)
                 user = f"{system}\n\n{user}"
 
@@ -53,12 +52,12 @@ class GeminiProvider:
                     "temperature": temperature,
                 },
             )
-            # genai retorna resp.text (pode ser None se bloqueado)
+
             text = getattr(resp, "text", None)
             if text is None:
-                # tentar extrair de candidates
+
                 try:
-                    text = resp.candidates[0].content.parts[0].text  # type: ignore
+                    text = resp.candidates[0].content.parts[0].text
                 except Exception:
                     text = None
             return strip_markdown_fences(text)

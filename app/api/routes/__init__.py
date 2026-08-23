@@ -1,1 +1,1 @@
-"""Rotas/endpoints da API, agrupados por recurso."""
+

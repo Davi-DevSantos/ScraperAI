@@ -1,1 +1,1 @@
-"""Utilitários genéricos (formatação, limpeza de texto, etc.)."""
+
