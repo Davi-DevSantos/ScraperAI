@@ -1,10 +1,48 @@
-"""App principal (FastAPI).
+"""App principal (FastAPI)."""
 
-Ponto de entrada da API: `uvicorn app.main:app --reload`.
-Aqui serão registrados o FastAPI, o middleware de CORS e os routers.
-"""
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
-# TODO: Criar a instância do FastAPI
-# TODO: Adicionar middleware de CORS (origens vindas de core/config.py)
-# TODO: Registrar os routers de app/api/routes/
-# TODO: Criar endpoint de health check
+from app.api.routes import ai, health
+from app.core.config import setting
+
+app = FastAPI(
+    title="AIScraper",
+    description="API de scraping com IA — multi-provedor OpenAI/Anthropic/Gemini. Envie sua própria API key por requisição.",
+    version="0.1.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+)
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=setting.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Routers
+app.include_router(health.router)
+app.include_router(ai.router)
+
+
+@app.get("/", include_in_schema=False)
+async def root():
+    return JSONResponse(
+        {
+            "name": "AIScraper",
+            "version": "0.1.0",
+            "docs": "/docs",
+            "health": "/health",
+            "providers": "/api/providers",
+            "scrape": "POST /api/scrape",
+        }
+    )
+
+
+@app.get("/health", include_in_schema=False)
+async def health_alias():
+    return {"status": "ok", "version": "0.1.0"}

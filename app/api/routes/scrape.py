@@ -1,4 +1,6 @@
-"""Endpoints de scraping."""
+"""Endpoints de scraping (legado) — redireciona para /api/scrape."""
 
-# TODO: POST /scrape -> recebe URL(s), executa o scraper e retorna conteúdo extraído
-# TODO: GET /scrape/{job_id} -> consulta resultado de um scrape (fila/async)
+from fastapi import APIRouter
+
+# Mantido para compatibilidade; lógica real está em app/api/routes/ai.py
+router = APIRouter(prefix="/api", tags=["scrape"])

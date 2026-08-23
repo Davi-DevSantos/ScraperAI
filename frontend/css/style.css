@@ -1,8 +1,67 @@
-/* Estilos do frontend (AIScraper). TODO: preencher conforme necessidade. */
+/* AIScraper — estilos */
+* { box-sizing: border-box; }
 
 body {
   font-family: system-ui, sans-serif;
   margin: 0;
-  padding: 1rem;
+  padding: 1.5rem;
   background: #f5f5f5;
+  color: #1a1a1a;
 }
+
+#app {
+  max-width: 880px;
+  margin: 0 auto;
+  background: #fff;
+  padding: 1.5rem 1.8rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.06);
+}
+
+h1 { margin: 0 0 .3rem; font-size: 1.8rem; }
+h2 { margin-top: 1.2rem; font-size: 1.2rem; }
+h3 { margin-top: 1rem; font-size: 1rem; }
+
+section { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; }
+
+label { display: block; margin: .7rem 0 .3rem; font-weight: 600; font-size: .9rem; }
+label small { display: block; font-weight: 400; color: #666; font-size: .78rem; margin-top: .2rem; }
+
+input, textarea, select, button {
+  width: 100%;
+  padding: .6rem .7rem;
+  border: 1px solid #d0d0d0;
+  border-radius: 8px;
+  font: inherit;
+}
+
+textarea { resize: vertical; }
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .8rem;
+}
+
+button {
+  margin-top: 1rem;
+  background: #111;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+button:hover { background: #222; }
+
+pre {
+  background: #f8f8f8;
+  padding: .8rem;
+  border-radius: 8px;
+  overflow: auto;
+  font-size: .85rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+#status { margin-top: .8rem; font-weight: 600; }
+#status:empty { display: none; }
