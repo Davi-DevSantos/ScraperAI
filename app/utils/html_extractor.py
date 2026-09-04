@@ -1,3 +1,4 @@
+import logging
 import random
 import time
 
@@ -5,6 +6,8 @@ from bs4 import BeautifulSoup, Comment
 from playwright.sync_api import sync_playwright
 
 from app.core.config import setting
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_UA = setting.SCRAPER_USER_AGENT or "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 
@@ -66,7 +69,8 @@ def _launch_browser(p):
         try:
             browser_type = getattr(p, name)
             return browser_type.launch(headless=True, args=STEALTH_ARGS)
-        except Exception:
+        except Exception as exc:  # noqa: BLE001
+            logger.debug("Falha ao lançar browser %s: %s", name, exc)
             continue
     return p.chromium.launch(headless=True, args=STEALTH_ARGS)
 
@@ -96,30 +100,30 @@ def get_html(url: str, timeout: int | None = None) -> str:
             time.sleep(random.uniform(0.8, 1.6))
             try:
                 page.wait_for_load_state("networkidle", timeout=5000)
-            except Exception:
-                pass
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("wait_for_load_state ignorado: %s", exc)
             try:
                 page.evaluate("window.scrollTo(0, document.body.scrollHeight/2)")
                 time.sleep(random.uniform(0.4, 0.8))
                 page.evaluate("window.scrollTo(0, 0)")
                 time.sleep(0.3)
-            except Exception:
-                pass
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("scroll ignorado: %s", exc)
             html = page.content()
             if _is_antibot_challenge(html):
                 time.sleep(random.uniform(4.0, 6.0))
                 try:
                     page.wait_for_load_state("networkidle", timeout=5000)
-                except Exception:
-                    pass
+                except Exception as exc:  # noqa: BLE001
+                    logger.debug("wait_for_load_state pós-challenge ignorado: %s", exc)
                 html = page.content()
             return html
         finally:
             try:
                 context.close()
-            except Exception:
-                pass
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("context.close falhou: %s", exc)
             try:
                 browser.close()
-            except Exception:
-                pass
+            except Exception as exc:  # noqa: BLE001
+                logger.debug("browser.close falhou: %s", exc)

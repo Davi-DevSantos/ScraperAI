@@ -42,8 +42,6 @@ tests/                    # pytest
 python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
-# ou
-pip install -r requirements.txt
 playwright install chromium
 cp .env.example .env   # edite as chaves
 uvicorn app.main:app --reload
@@ -171,15 +169,15 @@ pytest -v
 pytest --tb=short
 ```
 
-35 testes cobrem: init/factory, `_build_client`, `get_data` com mocks por provider, stripping de cercas markdown (Gemini), validação de chave e header.
+42 testes cobrem: health/providers, init/factory, `_build_client`, `get_data` com mocks por provider, stripping de cercas markdown (Gemini), validação de chave/header e fallback de modelo por provider.
 
 ## Dependências
 
-`pyproject.toml` e `requirements.txt` alinhados:
+`pyproject.toml` (única fonte de dependências):
 
 - API: `fastapi`, `uvicorn[standard]`, `python-dotenv`, `pydantic-settings`
-- IA: `openai>=1.30`, `anthropic>=0.30`, `google-generativeai>=0.8`
-- Scraping: `scrapegraphai`, `httpx`, `beautifulsoup4`, `lxml`, `playwright`, `nest-asyncio`
+- IA: `openai>=1.30`, `anthropic>=0.30`, `google-genai>=1.0` (compat fallback `google-generativeai>=0.8` deprecated)
+- Scraping: `httpx`, `beautifulsoup4`, `lxml`, `playwright`
 - Dev: `pytest`, `pytest-asyncio`, `ruff`, `httpx` (TestClient)
 
 Instale browsers após `pip install`:

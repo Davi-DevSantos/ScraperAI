@@ -2,7 +2,7 @@ from openai import OpenAI
 
 from app.core.config import setting
 from app.core.exceptions import InvalidError, ServiceError
-from app.services.providers.prompts import SYSTEM_PROMPT
+
 
 class OpenAIProvider:
     name = "openai"

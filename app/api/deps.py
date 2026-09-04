@@ -6,6 +6,7 @@ from app.core.config import setting
 from app.services.providers.base import AIProvider
 from app.services.providers.factory import get_provider
 
+
 def get_api_key_from_header(
     x_ai_api_key: Annotated[str | None, Header(alias="X-AI-API-Key")] = None,
 ) -> str | None:

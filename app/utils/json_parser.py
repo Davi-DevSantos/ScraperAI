@@ -1,5 +1,6 @@
 import re
 
+
 def strip_markdown_fences(text: str | None) -> str | None:
     if text is None:
         return None

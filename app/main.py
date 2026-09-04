@@ -44,7 +44,3 @@ async def root():
             "frontend": "/app/",
         }
     )
-
-@app.get("/health", include_in_schema=False)
-async def health_alias():
-    return {"status": "ok", "version": "0.1.0"}

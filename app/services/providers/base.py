@@ -1,5 +1,6 @@
 from typing import Protocol
 
+
 class AIProvider(Protocol):
 
     name: str

@@ -6,8 +6,6 @@ import pytest
 from app.services.scraper import IAScrapeServices, _build_client, client
 
 
-
-
 def _mock_openai_client(content: str | None = '{"nome": "teste"}'):
     mock_client = MagicMock()
     mock_message = MagicMock()
@@ -205,7 +203,7 @@ class TestGetDataHappyPath:
         mock_client = _mock_openai_client()
         svc = IAScrapeServices(url="https://a.com", prompt="prompt", client=mock_client)
         svc.get_data()
-        args, kwargs = mock_format_prompt.call_args
+        _args, kwargs = mock_format_prompt.call_args
         assert kwargs["html"] == "<div>limpo</div>"
         assert kwargs["prompt"] == "prompt"
 

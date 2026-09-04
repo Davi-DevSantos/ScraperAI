@@ -28,22 +28,26 @@ async def scrape_website(
     if provider_name.lower() == "google":
         provider_name = "gemini"
 
+    from app.schemas.scrape import ALLOWED_MODELS as _ALLOWED
     from app.services.providers.factory import normalize_provider
 
     _norm_req = normalize_provider(str(provider_name))
     _norm_setting = normalize_provider(setting.AI_PROVIDER)
     if request.model:
         effective_model = request.model
-    elif _norm_req != _norm_setting and setting.AI_MODEL in (
-        "gpt-4o-mini",
-        "gpt-4o",
-        "gpt-4",
-        "gpt-3.5-turbo",
-        "",
-    ):
-        effective_model = get_default_model(_norm_req)
     else:
-        effective_model = setting.AI_MODEL or get_default_model(_norm_req)
+        default_setting = DEFAULT_MODELS.get(_norm_setting)
+        if _norm_req != _norm_setting:
+            if (
+                not setting.AI_MODEL
+                or setting.AI_MODEL == default_setting
+                or setting.AI_MODEL not in _ALLOWED.get(_norm_req, [])
+            ):
+                effective_model = get_default_model(_norm_req)
+            else:
+                effective_model = setting.AI_MODEL
+        else:
+            effective_model = setting.AI_MODEL or get_default_model(_norm_req)
 
     effective_max_tokens = request.max_tokens if request.max_tokens is not None else setting.AI_MAX_TOKENS
     effective_temperature = request.temperature if request.temperature is not None else setting.AI_TEMPERATURE

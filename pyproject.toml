@@ -14,10 +14,8 @@ dependencies = [
     "lxml>=5.0",
     "openai>=1.30",
     "anthropic>=0.30",
-    "google-generativeai>=0.8",
-    "scrapegraphai>=1.44",
+    "google-genai>=1.0",
     "playwright>=1.40",
-    "nest-asyncio>=1.6",
 ]
 
 [project.optional-dependencies]
