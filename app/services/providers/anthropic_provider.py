@@ -2,6 +2,7 @@ from app.core.config import setting
 from app.core.exceptions import InvalidError, ServiceError
 from app.utils.json_parser import strip_markdown_fences
 
+
 class AnthropicProvider:
     name = "anthropic"
 
@@ -31,15 +32,24 @@ class AnthropicProvider:
         if not model:
             raise InvalidError("model não pode ser vazio para Anthropic")
         try:
-
-            resp = self._client.messages.create(
-                model=model,
-                system=system,
-                messages=[{"role": "user", "content": user}],
-                max_tokens=max_tokens,
-                temperature=temperature,
-            )
-
+            try:
+                resp = self._client.messages.create(
+                    model=model,
+                    system=system,
+                    messages=[{"role": "user", "content": user}],
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                )
+            except TypeError as te:
+                if "temperature" in str(te):
+                    resp = self._client.messages.create(
+                        model=model,
+                        system=system,
+                        messages=[{"role": "user", "content": user}],
+                        max_tokens=max_tokens,
+                    )
+                else:
+                    raise
             if not resp.content:
                 return None
             block = resp.content[0]

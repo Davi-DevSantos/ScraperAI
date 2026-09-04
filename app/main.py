@@ -1,6 +1,9 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import ai, health
 from app.core.config import setting
@@ -20,9 +23,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 app.include_router(health.router)
 app.include_router(ai.router)
+
+frontend_path = Path(__file__).parent.parent / "frontend"
+if frontend_path.exists():
+    app.mount("/app", StaticFiles(directory=str(frontend_path), html=True), name="frontend")
+
 
 @app.get("/", include_in_schema=False)
 async def root():
@@ -34,6 +41,7 @@ async def root():
             "health": "/health",
             "providers": "/api/providers",
             "scrape": "POST /api/scrape",
+            "frontend": "/app/",
         }
     )
 

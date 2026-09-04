@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     API_DEBUG: bool = True
 
     # ===== CORS =====
-    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000"]
+    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8000", "http://127.0.0.1:8000"]
 
     # ===== IA =====
     AI_PROVIDER: AIProviderName = "openai"

@@ -1,3 +1,4 @@
+import asyncio
 from typing import Annotated
 
 from fastapi import APIRouter, Header, HTTPException
@@ -58,7 +59,7 @@ async def scrape_website(
             max_tokens=effective_max_tokens,
             temperature=effective_temperature,
         )
-        data = scraper.get_data()
+        data = await asyncio.to_thread(scraper.get_data)
 
         return ScrapeResult(
             data=str(data) if data is not None else "",

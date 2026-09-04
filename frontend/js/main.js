@@ -5,11 +5,11 @@ const $ = (id) => document.getElementById(id);
 const FALLBACK_MODELS = {
   openai: ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1", "o1-mini", "o3-mini"],
   anthropic: ["claude-3-5-sonnet-latest", "claude-3-5-haiku-latest", "claude-3-opus-latest", "claude-3-haiku-20240307"],
-  gemini: ["gemini-2.0-flash", "gemini-2.0-flash-exp", "gemini-1.5-pro", "gemini-1.5-flash", "gemini-1.5-flash-8b"],
+  gemini: ["gemini-2.5-pro", "gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-pro", "gemini-3-flash", "gemini-3.1-pro"],
 };
 
 let availableModels = FALLBACK_MODELS;
-let defaultModels = { openai: "gpt-4o-mini", anthropic: "claude-3-5-sonnet-latest", gemini: "gemini-2.0-flash" };
+let defaultModels = { openai: "gpt-4o-mini", anthropic: "claude-3-5-sonnet-latest", gemini: "gemini-2.5-flash" };
 
 function populateModelSelect(provider) {
   const modelEl = $("model");
