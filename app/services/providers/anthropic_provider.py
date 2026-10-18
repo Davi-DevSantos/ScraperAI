@@ -32,22 +32,22 @@ class AnthropicProvider:
         if not model:
             raise InvalidError("model não pode ser vazio para Anthropic")
         try:
+            kwargs: dict = {
+                "model": model,
+                "system": system,
+                "messages": [{"role": "user", "content": user}],
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+            }
             try:
-                resp = self._client.messages.create(
-                    model=model,
-                    system=system,
-                    messages=[{"role": "user", "content": user}],
-                    max_tokens=max_tokens,
-                    temperature=temperature,
-                )
-            except TypeError as te:
-                if "temperature" in str(te):
-                    resp = self._client.messages.create(
-                        model=model,
-                        system=system,
-                        messages=[{"role": "user", "content": user}],
-                        max_tokens=max_tokens,
-                    )
+                resp = self._client.messages.create(**kwargs)
+            except Exception as exc:
+                msg = str(exc).lower()
+                if "temperature" in msg and (
+                    "support" in msg or "thinking" in msg or "unexpected keyword" in msg
+                ):
+                    kwargs.pop("temperature", None)
+                    resp = self._client.messages.create(**kwargs)
                 else:
                     raise
             if not resp.content:

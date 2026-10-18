@@ -5,6 +5,14 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 AIProviderName = Literal["openai", "anthropic", "gemini"]
 
+_PLACEHOLDER_MARKERS = (
+    "coloque_sua_chave",
+    "sua_chave_aqui",
+    "your_api_key",
+    "changeme",
+)
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -18,11 +26,16 @@ class Settings(BaseSettings):
     API_DEBUG: bool = True
 
     # ===== CORS =====
-    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8000", "http://127.0.0.1:8000"]
+    CORS_ORIGINS: list[str] = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ]
 
     # ===== IA =====
     AI_PROVIDER: AIProviderName = "openai"
-    AI_MODEL: str = "gpt-4o-mini"
+    AI_MODEL: str = "gpt-6-luna"
     AI_MAX_TOKENS: int = 2048
     AI_TEMPERATURE: float = 0.2
 
@@ -46,6 +59,21 @@ class Settings(BaseSettings):
                 return "gemini"
         return v
 
+    @field_validator(
+        "OPENAI_API_KEY",
+        "ANTHROPIC_API_KEY",
+        "GOOGLE_API_KEY",
+        "GEMINI_API_KEY",
+        "AI_API_KEY",
+        mode="after",
+    )
+    @classmethod
+    def _ignore_placeholder_keys(cls, v: SecretStr | str) -> SecretStr | str:
+        val = cls._secret_value(v)
+        if val and any(marker in val.lower() for marker in _PLACEHOLDER_MARKERS):
+            return ""
+        return v
+
     @model_validator(mode="after")
     def _copy_generic_key(self):
         generic = self._secret_value(self.AI_API_KEY)
@@ -54,11 +82,17 @@ class Settings(BaseSettings):
                 self.OPENAI_API_KEY = generic
             if not self._secret_value(self.ANTHROPIC_API_KEY) and self.AI_PROVIDER == "anthropic":
                 self.ANTHROPIC_API_KEY = generic
-            if not self._secret_value(self.GOOGLE_API_KEY) and not self._secret_value(self.GEMINI_API_KEY) and self.AI_PROVIDER == "gemini":
+            if (
+                not self._secret_value(self.GOOGLE_API_KEY)
+                and not self._secret_value(self.GEMINI_API_KEY)
+                and self.AI_PROVIDER == "gemini"
+            ):
                 self.GOOGLE_API_KEY = generic
         if self._secret_value(self.GEMINI_API_KEY) and not self._secret_value(self.GOOGLE_API_KEY):
             self.GOOGLE_API_KEY = self._secret_value(self.GEMINI_API_KEY)
-        elif self._secret_value(self.GOOGLE_API_KEY) and not self._secret_value(self.GEMINI_API_KEY):
+        elif self._secret_value(self.GOOGLE_API_KEY) and not self._secret_value(
+            self.GEMINI_API_KEY
+        ):
             self.GEMINI_API_KEY = self._secret_value(self.GOOGLE_API_KEY)
         return self
 
@@ -82,5 +116,6 @@ class Settings(BaseSettings):
         if not val:
             val = self._secret_value(self.AI_API_KEY)
         return val
+
 
 setting = Settings()

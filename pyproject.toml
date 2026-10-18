@@ -26,6 +26,9 @@ dev = [
     "httpx>=0.27",
 ]
 
+[tool.poetry]
+package-mode = false
+
 [build-system]
 requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"

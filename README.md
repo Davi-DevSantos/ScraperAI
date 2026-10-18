@@ -57,7 +57,7 @@ Copy-Item .env.example .env   # edite as chaves
 uvicorn app.main:app --reload
 ```
 
-Docs: http://localhost:8000/docs — Health: http://localhost:8000/health
+Docs: http://localhost:8000/docs — Health: http://localhost:8000/health — Frontend: http://localhost:8000/app/
 
 ## Variáveis de Ambiente (.env)
 
@@ -67,7 +67,7 @@ Docs: http://localhost:8000/docs — Health: http://localhost:8000/health
 | `API_PORT` | `8000` | porta |
 | `CORS_ORIGINS` | `["http://localhost:3000",...]` | origins |
 | `AI_PROVIDER` | `openai` | `openai` \| `anthropic` \| `gemini` (`google` alias) |
-| `AI_MODEL` | `gpt-4o-mini` | modelo default do provider padrão |
+| `AI_MODEL` | `gpt-6-luna` | modelo default do provider padrão |
 | `AI_MAX_TOKENS` | `2048` | |
 | `AI_TEMPERATURE` | `0.2` | `0..2` |
 | `OPENAI_API_KEY` |  | https://platform.openai.com/api-keys |
@@ -89,11 +89,11 @@ Docs: http://localhost:8000/docs — Health: http://localhost:8000/health
 {
   "providers": ["openai","anthropic","gemini"],
   "default": "openai",
-  "default_models": {"openai":"gpt-4o-mini","anthropic":"claude-3-5-sonnet-latest","gemini":"gemini-2.5-flash"},
+  "default_models": {"openai":"gpt-6-luna","anthropic":"claude-sonnet-5-5","gemini":"gemini-3.8-flash"},
   "available_models": {
-    "openai": ["gpt-4o-mini","gpt-4o","gpt-4.1-mini","gpt-4.1","o1-mini","o3-mini"],
-    "anthropic": ["claude-3-5-sonnet-latest","claude-3-5-haiku-latest","claude-3-opus-latest","claude-3-haiku-20240307"],
-    "gemini": ["gemini-2.5-pro","gemini-2.5-flash","gemini-2.5-flash-lite","gemini-3-pro","gemini-3-flash","gemini-3.1-pro"]
+    "openai": ["gpt-6-astra","gpt-6.1-sol","gpt-6-luna","gpt-5.6-sol","gpt-5.6-terra","gpt-5.4-mini","gpt-4.1","gpt-4o-mini"],
+    "anthropic": ["claude-fable-5-1","claude-opus-5-5","claude-sonnet-5-5","claude-haiku-5-5","claude-sonnet-5","claude-haiku-4-5"],
+    "gemini": ["gemini-4-argon","gemini-3.8-flash","gemini-3.6-flash","gemini-3.5-flash-lite","gemini-3.1-flash-lite","gemini-3.1-pro-preview","gemini-3-flash-preview"]
   }
 }
 ```
@@ -107,7 +107,7 @@ Body:
   "url": "https://example.com",
   "prompt": "Extraia produtos com nome e preço em JSON",
   "provider": "anthropic",
-  "model": "claude-3-5-sonnet-latest",
+  "model": "claude-sonnet-5-5",
   "api_key": "sk-ant-...",
   "max_tokens": 1024,
   "temperature": 0.2
@@ -119,7 +119,7 @@ Resposta:
 {
   "data": "{\"produtos\": [{\"nome\": \"Caneta\", \"preco\": \"10,00\"}]}",
   "provider": "anthropic",
-  "model": "claude-3-5-sonnet-latest"
+  "model": "claude-sonnet-5-5"
 }
 ```
 
@@ -155,7 +155,9 @@ curl http://localhost:8000/api/providers
 
 ## Frontend
 
-Abra `frontend/index.html` no navegador (ou `python -m http.server` na raiz).
+Com o backend rodando, acesse **http://localhost:8000/app/** — o FastAPI serve o frontend na mesma origem, já integrado à API (sem CORS).
+
+> Abrir `frontend/index.html` direto do disco (`file://`) **não funciona**: o navegador envia `Origin: null` e o CORS bloqueia as chamadas à API.
 
 Formulário contém: URL, prompt, **seletor de provider (obrigatório)**, **seletor de modelo (obrigatório, sem texto livre — lista por provider via `/api/providers`)**, **campo Sua API Key (obrigatório, password, não persistida)**, max_tokens/temperature, e exibição do JSON retornado.
 
@@ -169,7 +171,7 @@ pytest -v
 pytest --tb=short
 ```
 
-42 testes cobrem: health/providers, init/factory, `_build_client`, `get_data` com mocks por provider, stripping de cercas markdown (Gemini), validação de chave/header e fallback de modelo por provider.
+52 testes cobrem: health/providers, init/factory, `_build_client`, `get_data` com mocks por provider, stripping de cercas markdown (Gemini), validação de chave/header, fallback de modelo por provider e fallbacks de parâmetros dos modelos novos (max_completion_tokens/temperature).
 
 ## Dependências
 
@@ -191,8 +193,8 @@ playwright install chromium
 
 | Provedor | Default | Disponíveis (select, sem texto livre) |
 |----------|---------|----------------------------------------|
-| openai | `gpt-4o-mini` | `gpt-4o-mini`, `gpt-4o`, `gpt-4.1-mini`, `gpt-4.1`, `o1-mini`, `o3-mini` |
-| anthropic | `claude-3-5-sonnet-latest` | `claude-3-5-sonnet-latest`, `claude-3-5-haiku-latest`, `claude-3-opus-latest`, `claude-3-haiku-20240307` |
-| gemini | `gemini-2.5-flash` | `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.5-flash-lite`, `gemini-3-pro`, `gemini-3-flash`, `gemini-3.1-pro` |
+| openai | `gpt-6-luna` | `gpt-6-astra`, `gpt-6.1-sol`, `gpt-6-luna`, `gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.4-mini`, `gpt-4.1`, `gpt-4o-mini` |
+| anthropic | `claude-sonnet-5-5` | `claude-fable-5-1`, `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-haiku-5-5`, `claude-sonnet-5`, `claude-haiku-4-5` |
+| gemini | `gemini-3.8-flash` | `gemini-4-argon`, `gemini-3.8-flash`, `gemini-3.6-flash`, `gemini-3.5-flash-lite`, `gemini-3.1-flash-lite`, `gemini-3.1-pro-preview`, `gemini-3-flash-preview` |
 
 `model` deve ser um dos disponíveis para o `provider` escolhido (`422` caso contrário). Gemini usa `max_output_tokens` internamente mapeado de `max_tokens`.

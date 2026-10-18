@@ -28,19 +28,35 @@ class OpenAIProvider:
         if not model:
             raise InvalidError("model não pode ser vazio para OpenAI")
         try:
-            chat = self._client.chat.completions.create(
-                model=model,
-                messages=[
+            kwargs: dict = {
+                "model": model,
+                "messages": [
                     {"role": "system", "content": system},
                     {"role": "user", "content": user},
                 ],
-                max_tokens=max_tokens,
-                temperature=temperature,
-            )
+                "max_tokens": max_tokens,
+                "temperature": temperature,
+            }
+            chat = None
+            for _ in range(3):
+                try:
+                    chat = self._client.chat.completions.create(**kwargs)
+                    break
+                except Exception as exc:
+                    msg = str(exc).lower()
+                    retried = False
+                    if "max_tokens" in kwargs and "max_completion_tokens" in msg:
+                        kwargs["max_completion_tokens"] = kwargs.pop("max_tokens")
+                        retried = True
+                    if "temperature" in kwargs and "temperature" in msg and "support" in msg:
+                        kwargs.pop("temperature")
+                        retried = True
+                    if not retried:
+                        raise
+            if chat is None:
+                raise ServiceError("OpenAI error: falha ao completar requisição após retries")
             return chat.choices[0].message.content
         except Exception as e:
-
-
             msg = str(e)
             if "api_key" in msg.lower() or "unauthorized" in msg.lower() or "401" in msg:
                 raise ServiceError(f"OpenAI auth falhou: {msg}") from e

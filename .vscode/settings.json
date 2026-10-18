@@ -12,5 +12,6 @@
     "editor.codeActionsOnSave": {
       "source.organizeImports": "explicit"
     }
-  }
+  },
+  "python.terminal.useEnvFile": true
 }

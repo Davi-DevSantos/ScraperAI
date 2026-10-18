@@ -2,7 +2,6 @@ from typing import Protocol
 
 
 class AIProvider(Protocol):
-
     name: str
 
     def complete(
@@ -12,5 +11,4 @@ class AIProvider(Protocol):
         model: str,
         max_tokens: int,
         temperature: float,
-    ) -> str | None:
-        ...
+    ) -> str | None: ...

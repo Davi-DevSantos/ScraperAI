@@ -9,7 +9,9 @@ from app.core.config import setting
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_UA = setting.SCRAPER_USER_AGENT or "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+DEFAULT_UA = (
+    setting.SCRAPER_USER_AGENT or "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+)
 
 STEALTH_ARGS = [
     "--disable-blink-features=AutomationControlled",
@@ -38,11 +40,15 @@ Object.defineProperty(navigator, 'permissions', {
 
 def format_html(html: str):
     soup = BeautifulSoup(html, "html.parser")
-    for tag in soup.find_all(["script", "style", "noscript", "iframe", "svg", "canvas", "form", "button"]):
+    for tag in soup.find_all(
+        ["script", "style", "noscript", "iframe", "svg", "canvas", "form", "button"]
+    ):
         tag.decompose()
     for c in soup.find_all(string=lambda text: isinstance(text, Comment)):
         c.extract()
-    for el in soup.select("[id*='captcha'], [class*='captcha'], [id*='cf-challenge'], [class*='cf-challenge']"):
+    for el in soup.select(
+        "[id*='captcha'], [class*='captcha'], [id*='cf-challenge'], [class*='cf-challenge']"
+    ):
         if el.get_text(strip=True) and len(el.get_text(strip=True)) < 500:
             el.decompose()
     return soup

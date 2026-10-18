@@ -12,6 +12,7 @@ def get_api_key_from_header(
 ) -> str | None:
     return x_ai_api_key
 
+
 def get_ai_provider(
     provider: str | None = None,
     api_key: str | None = None,

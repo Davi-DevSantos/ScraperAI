@@ -3,33 +3,50 @@ from typing import Literal
 from pydantic import BaseModel, Field, HttpUrl, SecretStr, model_validator
 
 ProviderName = Literal["openai", "anthropic", "gemini"]
+ProviderInput = Literal["openai", "anthropic", "gemini", "google"]
 
 
 ALLOWED_MODELS: dict[str, list[str]] = {
-    "openai": ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1", "o1-mini", "o3-mini"],
+    "openai": [
+        "gpt-6-astra",
+        "gpt-6.1-sol",
+        "gpt-6-luna",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra",
+        "gpt-5.4-mini",
+        "gpt-4.1",
+        "gpt-4o-mini",
+    ],
     "anthropic": [
-        "claude-3-5-sonnet-latest",
-        "claude-3-5-haiku-latest",
-        "claude-3-opus-latest",
-        "claude-3-haiku-20240307",
+        "claude-fable-5-1",
+        "claude-opus-5-5",
+        "claude-sonnet-5-5",
+        "claude-haiku-5-5",
+        "claude-sonnet-5",
+        "claude-haiku-4-5",
     ],
     "gemini": [
-        "gemini-2.5-pro",
-        "gemini-2.5-flash",
-        "gemini-2.5-flash-lite",
-        "gemini-3-pro",
-        "gemini-3-flash",
-        "gemini-3.1-pro",
+        "gemini-4-argon",
+        "gemini-3.8-flash",
+        "gemini-3.6-flash",
+        "gemini-3.5-flash-lite",
+        "gemini-3.1-flash-lite",
+        "gemini-3.1-pro-preview",
+        "gemini-3-flash-preview",
     ],
 }
+
 
 class ScrapeRequest(BaseModel):
     url: HttpUrl = Field(..., description="URL do site a extrair")
     prompt: str = Field(..., description="Prompt que guia a extração", min_length=1)
-    provider: ProviderName | None = Field(
-        None, description="Provedor de IA (openai | anthropic | gemini). Default do .env se omitido"
+    provider: ProviderInput | None = Field(
+        None,
+        description="Provedor de IA (openai | anthropic | gemini; 'google' é alias de gemini). Default do .env se omitido",
     )
-    model: str | None = Field(None, description="Modelo específico do provedor (apenas modelos da lista)")
+    model: str | None = Field(
+        None, description="Modelo específico do provedor (apenas modelos da lista)"
+    )
     api_key: SecretStr | None = Field(
         None,
         repr=False,
@@ -39,7 +56,10 @@ class ScrapeRequest(BaseModel):
     temperature: float | None = Field(None, ge=0, le=2, description="Override de temperature")
 
     @model_validator(mode="after")
-    def _validate_model_for_provider(self):
+    def _normalize_provider_e_valida_modelo(self):
+        if self.provider == "google":
+            self.provider = "gemini"
+
         if self.model is None:
             return self
 
@@ -47,12 +67,15 @@ class ScrapeRequest(BaseModel):
         if self.provider:
             allowed = ALLOWED_MODELS.get(self.provider, [])
             if self.model not in allowed:
-                raise ValueError(f"Modelo '{self.model}' inválido para provider '{self.provider}'. Opções: {', '.join(allowed)}")
+                raise ValueError(
+                    f"Modelo '{self.model}' inválido para provider '{self.provider}'. Opções: {', '.join(allowed)}"
+                )
         else:
             all_models = [m for lst in ALLOWED_MODELS.values() for m in lst]
             if self.model not in all_models:
                 raise ValueError(f"Modelo '{self.model}' inválido. Opções: {', '.join(all_models)}")
         return self
+
 
 class ScrapeResult(BaseModel):
     data: str = Field(..., description="Dados extraídos em JSON string")

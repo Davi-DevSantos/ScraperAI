@@ -1,0 +1,28 @@
+# =============================================================
+# AIScraper — sobe tudo com UM comando:  docker compose up --build
+# Frontend integrado em:  http://localhost:8000/app/
+# =============================================================
+services:
+  api:
+    
+    build: .
+
+    image: scraper-ai
+    container_name: scraper-ai
+
+    ports:
+      - "127.0.0.1:8000:8000"
+
+    env_file:
+      - .env
+
+    restart: unless-stopped
+
+    shm_size: "1gb"
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

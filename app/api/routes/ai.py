@@ -16,6 +16,7 @@ from app.services.scraper import IAScrapeServices
 
 router = APIRouter(prefix="/api", tags=["ai"])
 
+
 @router.post("/scrape", response_model=ScrapeResult)
 async def scrape_website(
     request: ScrapeRequest,
@@ -49,8 +50,12 @@ async def scrape_website(
         else:
             effective_model = setting.AI_MODEL or get_default_model(_norm_req)
 
-    effective_max_tokens = request.max_tokens if request.max_tokens is not None else setting.AI_MAX_TOKENS
-    effective_temperature = request.temperature if request.temperature is not None else setting.AI_TEMPERATURE
+    effective_max_tokens = (
+        request.max_tokens if request.max_tokens is not None else setting.AI_MAX_TOKENS
+    )
+    effective_temperature = (
+        request.temperature if request.temperature is not None else setting.AI_TEMPERATURE
+    )
 
     try:
         provider = get_provider(str(provider_name), api_key=effective_key)
@@ -81,6 +86,7 @@ async def scrape_website(
         raise HTTPException(status_code=502, detail=str(e)) from e
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e)) from e
+
 
 @router.get("/providers")
 async def list_providers():
